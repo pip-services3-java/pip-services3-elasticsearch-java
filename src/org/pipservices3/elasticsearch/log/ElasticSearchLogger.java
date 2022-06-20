@@ -3,11 +3,6 @@ package org.pipservices3.elasticsearch.log;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.http.HttpHost;
 
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.CredentialsProvider;
-import org.apache.http.impl.client.BasicCredentialsProvider;
-import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.admin.indices.get.GetIndexRequest;
 import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.index.IndexRequest;
@@ -15,7 +10,6 @@ import org.elasticsearch.client.*;
 import org.elasticsearch.client.indices.CreateIndexRequest;
 
 import org.elasticsearch.common.settings.Settings;
-import org.elasticsearch.xcontent.XContentType;
 import org.pipservices3.commons.config.ConfigParams;
 import org.pipservices3.commons.convert.JsonConverter;
 import org.pipservices3.commons.data.IdGenerator;
@@ -35,6 +29,59 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
+/**
+ * Logger that dumps execution logs to ElasticSearch service.
+ *
+ * ElasticSearch is a popular search index. It is often used
+ * to store and index execution logs by itself or as a part of
+ * ELK (ElasticSearch - Logstash - Kibana) stack.
+ *
+ * Authentication is not supported in this version.
+ *
+ * ### Configuration parameters ###
+ *
+ * <pre>
+ * - level:             maximum log level to capture
+ * - source:            source (context) name
+ * - connection(s):
+ *     - discovery_key:         (optional) a key to retrieve the connection from {@link org.pipservices3.components.connect.IDiscovery}
+ *     - protocol:              connection protocol: http or https
+ *     - host:                  host name or IP address
+ *     - port:                  port number
+ *     - uri:                   resource URI or connection string with all parameters in it
+ * - options:
+ *     - interval:          interval in milliseconds to save log messages (default: 10 seconds)
+ *     - max_cache_size:    maximum number of messages stored in this cache (default: 100)
+ *     - index:             ElasticSearch index name (default: "log")
+ *     - date_format        The date format to use when creating the index name. Eg. log-YYYYMMDD (default: "YYYYMMdd"). See {@link DateTimeFormatter#ofPattern}
+ *     - daily:             true to create a new index every day by adding date suffix to the index name (default: false)
+ *     - reconnect:         reconnect timeout in milliseconds (default: 60 sec)
+ *     - timeout:           invocation timeout in milliseconds (default: 30 sec)
+ *     - max_retries:       maximum number of retries (default: 3)
+ *     - index_message:     true to enable indexing for message object (default: false)
+ *     - include_type_name: Will create using a "typed" index compatible with ElasticSearch 6.x (default: false)
+ * </pre>
+ *
+ * ### References ###
+ *
+ * - *:context-info:\*:*:1.0      (optional) {@link org.pipservices3.components.info.ContextInfo} to detect the context id and specify counters source
+ * - *:discovery:*:*:1.0<         (optional) {@link org.pipservices3.components.connect.IDiscovery} services to resolve connection
+ *
+ * ### Example ###
+ *
+ *     var logger = new ElasticSearchLogger();
+ *     logger.configure(ConfigParams.fromTuples(
+ *             "connection.protocol", "http",
+ *             "connection.host", "localhost",
+ *             "connection.port", 9200
+ *     ));
+ *
+ *     logger.open("123");
+ *
+ *     var ex = new Exception();
+ *     logger.error("123", ex, "Error occured: %s", ex.getMessage());
+ *     logger.debug("123", "Everything is OK.");
+ */
 public class ElasticSearchLogger extends CachedLogger implements IReferenceable, IOpenable {
 
     private final HttpConnectionResolver _connectionResolver = new HttpConnectionResolver();
@@ -141,6 +188,11 @@ public class ElasticSearchLogger extends CachedLogger implements IReferenceable,
         }, 0, _interval);
     }
 
+    /**
+     * Closes component and frees used resources.
+     *
+     * @param correlationId 	(optional) transaction id to trace execution through call chain.
+     */
     @Override
     public void close(String correlationId) throws InvocationException {
         this.save(this._cache);
@@ -202,6 +254,9 @@ public class ElasticSearchLogger extends CachedLogger implements IReferenceable,
         }
     }
 
+    /**
+     * Returns the schema of the log message
+     */
     private Map<String, ?> getIndexSchema() {
         final Map<String, ?> schema = Map.of(
                 "properties", Map.of(
