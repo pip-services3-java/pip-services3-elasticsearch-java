@@ -13,4 +13,4 @@ RUN mvn dependency:go-offline
 COPY . .
 
 # compile source code
-CMD sleep 15 && mvn test
+CMD sleep 60 && mvn test
