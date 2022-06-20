@@ -1,0 +1,17 @@
+/.vscode
+/.git
+/.gitignore
+/.dockerignore
+/docs
+/dist
+/lib
+/obj
+/docker/Dockerfile*
+/docker/docker-compose*.yml
+/*.sh
+/*.ps1
+/component.json
+/*.userprefs
+/*.md
+/temp
+/.github

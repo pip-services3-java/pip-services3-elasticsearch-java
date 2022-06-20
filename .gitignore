@@ -1,0 +1,8 @@
+/bin
+/lib
+/obj
+/dist
+/.idea
+/config/config.json
+settings.xml
+genKey
