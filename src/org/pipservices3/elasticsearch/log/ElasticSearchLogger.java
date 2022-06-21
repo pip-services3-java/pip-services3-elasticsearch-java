@@ -31,13 +31,13 @@ import java.util.*;
 
 /**
  * Logger that dumps execution logs to ElasticSearch service.
- *
+ * <p>
  * ElasticSearch is a popular search index. It is often used
  * to store and index execution logs by itself or as a part of
  * ELK (ElasticSearch - Logstash - Kibana) stack.
- *
+ * <p>
  * Authentication is not supported in this version.
- *
+ * <p>
  * ### Configuration parameters ###
  *
  * <pre>
@@ -61,14 +61,15 @@ import java.util.*;
  *     - index_message:     true to enable indexing for message object (default: false)
  *     - include_type_name: Will create using a "typed" index compatible with ElasticSearch 6.x (default: false)
  * </pre>
- *
+ * <p>
  * ### References ###
- *
+ * <p>
  * - *:context-info:\*:*:1.0      (optional) {@link org.pipservices3.components.info.ContextInfo} to detect the context id and specify counters source
  * - *:discovery:*:*:1.0<         (optional) {@link org.pipservices3.components.connect.IDiscovery} services to resolve connection
- *
+ * <p>
  * ### Example ###
- *
+ * <pre>
+ * {@code
  *     var logger = new ElasticSearchLogger();
  *     logger.configure(ConfigParams.fromTuples(
  *             "connection.protocol", "http",
@@ -81,6 +82,8 @@ import java.util.*;
  *     var ex = new Exception();
  *     logger.error("123", ex, "Error occured: %s", ex.getMessage());
  *     logger.debug("123", "Everything is OK.");
+ * }
+ * </pre>
  */
 public class ElasticSearchLogger extends CachedLogger implements IReferenceable, IOpenable {
 
@@ -191,7 +194,7 @@ public class ElasticSearchLogger extends CachedLogger implements IReferenceable,
     /**
      * Closes component and frees used resources.
      *
-     * @param correlationId 	(optional) transaction id to trace execution through call chain.
+     * @param correlationId (optional) transaction id to trace execution through call chain.
      */
     @Override
     public void close(String correlationId) throws InvocationException {
