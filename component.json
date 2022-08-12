@@ -1,6 +1,6 @@
 {
     "name": "pip-services3-elasticsearch",
-    "type": "microservice",
+    "type": "module",
     "language": "java",
     "version": "3.0.0",
     "build": 0,
