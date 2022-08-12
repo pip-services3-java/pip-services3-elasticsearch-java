@@ -1,6 +1,14 @@
 {
     "name": "pip-services3-elasticsearch",
-    "registry": "pipdevs",
+    "type": "microservice",
+    "language": "java",
     "version": "3.0.0",
-    "build": 0
+    "build": 0,
+    "registry": "pipdevs",
+    "artifacts": [
+        {
+            "name":  "<name>",
+            "type": "maven"
+        }
+    ]
 }
