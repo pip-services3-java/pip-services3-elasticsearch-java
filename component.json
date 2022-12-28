@@ -4,7 +4,7 @@
     "language": "java",
     "version": "3.0.0",
     "build": 0,
-    "registry": "pipdevs",
+    "registry": "pipservices",
     "artifacts": [
         {
             "name":  "<name>",
